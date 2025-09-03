@@ -7,15 +7,10 @@ import {
     TouchableWithoutFeedback,
 } from "react-native";
 
-export default function BusRouteModal({
-    modalVisible,
-    setModalVisible,
-    stop,
-    route,
-}) {
+export default function BusRouteModal({ visible, setVisibility, stop, route }) {
     return (
-        <Modal animationType="fade" transparent={true} visible={modalVisible}>
-            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <Modal animationType="fade" transparent={true} visible={visible}>
+            <TouchableWithoutFeedback onPress={() => setVisibility(false)}>
                 <View style={styles.container}>
                     <TouchableWithoutFeedback>
                         <View style={styles.content}>
@@ -90,7 +85,7 @@ export default function BusRouteModal({
                             <TouchableOpacity
                                 style={styles.closeButton}
                                 onPress={() => {
-                                    setModalVisible(false);
+                                    setVisibility(false);
                                 }}
                             >
                                 <Text style={styles.closeButtonText}>
@@ -107,8 +102,8 @@ export default function BusRouteModal({
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: "rgba(0,0,0,0.5)",
         flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
         alignItems: "center",
         justifyContent: "center",
     },

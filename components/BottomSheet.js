@@ -75,8 +75,8 @@ export default function BottomSheet({ stop }) {
 
             {busRoute && (
                 <BusRouteModal
-                    modalVisible={modalVisible}
-                    setModalVisible={setModalVisible}
+                    visible={modalVisible}
+                    setVisibility={setModalVisible}
                     stop={stop}
                     route={busRoute}
                 />
