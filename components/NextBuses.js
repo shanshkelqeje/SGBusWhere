@@ -3,19 +3,33 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-import BusRouteModal from "./BusRouteModal.js";
+export default function NextBuses({ arrivalInfo, loadColours, getBusRoute }) {
+    // Get the next arriving buses
+    const getNextBuses = (arrivalInfo) => {
+        const nextBuses = arrivalInfo.flatMap((bus) =>
+            bus.NextBuses.filter(
+                (nextBus) => nextBus.EstimatedArrival !== "-"
+            ).map((nextBus) => ({
+                ServiceNo: bus.ServiceNo,
+                EstimatedArrival: nextBus.EstimatedArrival,
+                Load: nextBus.Load,
+                Feature: nextBus.Feature,
+                Type: nextBus.Type,
+            }))
+        );
 
-export default function NextBuses({
-    nextBuses,
-    loadColours,
-    modalVisible,
-    setModalVisible,
-}) {
+        nextBuses.sort((a, b) => a.EstimatedArrival - b.EstimatedArrival);
+
+        return nextBuses.slice(0, 3);
+    };
+
+    const nextBuses = getNextBuses(arrivalInfo);
+
     return (
         <View style={styles.nextBusesContainer}>
             {nextBuses.map((nextBus, index) => (
                 <React.Fragment key={index}>
-                    <View style={styles.nextBusColumn} key={index}>
+                    <View style={styles.nextBusColumn}>
                         <View style={styles.nextBusRow}>
                             <MaterialIcons
                                 name="directions-bus"
@@ -23,9 +37,7 @@ export default function NextBuses({
                                 color="#000"
                             />
                             <TouchableOpacity
-                                onPress={() => {
-                                    setModalVisible(true);
-                                }}
+                                onPress={() => getBusRoute(nextBus.ServiceNo)}
                             >
                                 <Text style={styles.nextBusServiceNo}>
                                     {nextBus.ServiceNo}
@@ -50,11 +62,6 @@ export default function NextBuses({
                     )}
                 </React.Fragment>
             ))}
-
-            <BusRouteModal
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-            />
         </View>
     );
 }

@@ -1,68 +1,106 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    Modal,
+    TouchableWithoutFeedback,
+} from "react-native";
 
-export default function BusRouteModal({ modalVisible, setModalVisible }) {
+export default function BusRouteModal({
+    modalVisible,
+    setModalVisible,
+    stop,
+    route,
+}) {
     return (
         <Modal animationType="fade" transparent={true} visible={modalVisible}>
-            <View style={styles.container}>
-                <View style={styles.content}>
-                    <View style={styles.header}>
-                        <Text style={styles.serviceNo}>291</Text>
-                        <View style={styles.verticalLineSeparator} />
-                        <View>
-                            <Text style={styles.stopDescription}>
-                                Opp Blk 865
-                            </Text>
-                            <Text style={styles.stopRoadName}>
-                                Tampines St 83
-                            </Text>
-                            <Text style={styles.stopCode}>75102</Text>
+            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                <View style={styles.container}>
+                    <TouchableWithoutFeedback>
+                        <View style={styles.content}>
+                            <View style={styles.header}>
+                                <Text style={styles.serviceNo}>
+                                    {route.ServiceNo}
+                                </Text>
+                                <View style={styles.verticalLineSeparator} />
+                                <View>
+                                    <Text style={styles.stopDescription}>
+                                        {stop.Description}
+                                    </Text>
+                                    <Text style={styles.stopRoadName}>
+                                        {stop.RoadName}
+                                    </Text>
+                                    <Text style={styles.stopCode}>
+                                        {stop.BusStopCode}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.horizontalLineSeparator} />
+
+                            <View style={styles.table}>
+                                <View style={styles.tableHeader}>
+                                    <Text style={styles.tableRowHeader}></Text>
+                                    <Text style={styles.tableRowHeader}>
+                                        First Bus
+                                    </Text>
+                                    <Text style={styles.tableRowHeader}>
+                                        Last Bus
+                                    </Text>
+                                </View>
+
+                                <View style={styles.tableRow}>
+                                    <Text style={styles.tableColumnHeader}>
+                                        Weekdays
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.WD_FirstBus}
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.WD_LastBus}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.tableRow}>
+                                    <Text style={styles.tableColumnHeader}>
+                                        Saturdays
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.SAT_FirstBus}
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.SAT_LastBus}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.tableRow}>
+                                    <Text style={styles.tableColumnHeader}>
+                                        Sundays
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.SUN_FirstBus}
+                                    </Text>
+                                    <Text style={styles.tableCell}>
+                                        {route.SUN_LastBus}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => {
+                                    setModalVisible(false);
+                                }}
+                            >
+                                <Text style={styles.closeButtonText}>
+                                    Close
+                                </Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-
-                    <View style={styles.horizontalLineSeperator} />
-
-                    <View style={styles.table}>
-                        <View style={styles.tableHeader}>
-                            <Text style={styles.tableRowHeader}></Text>
-                            <Text style={styles.tableRowHeader}>First Bus</Text>
-                            <Text style={styles.tableRowHeader}>Last Bus</Text>
-                        </View>
-
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableColumnHeader}>
-                                Weekdays
-                            </Text>
-                            <Text style={styles.tableCell}>2020</Text>
-                            <Text style={styles.tableCell}>0007</Text>
-                        </View>
-
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableColumnHeader}>
-                                Saturdays
-                            </Text>
-                            <Text style={styles.tableCell}>1435</Text>
-                            <Text style={styles.tableCell}>0013</Text>
-                        </View>
-
-                        <View style={styles.tableRow}>
-                            <Text style={styles.tableColumnHeader}>
-                                Sundays
-                            </Text>
-                            <Text style={styles.tableCell}>0645</Text>
-                            <Text style={styles.tableCell}>0011</Text>
-                        </View>
-                    </View>
-
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => {
-                            setModalVisible(false);
-                        }}
-                    >
-                        <Text style={styles.closeButtonText}>Close</Text>
-                    </TouchableOpacity>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }
@@ -108,7 +146,7 @@ const styles = StyleSheet.create({
     stopCode: {
         fontSize: 16,
     },
-    horizontalLineSeperator: {
+    horizontalLineSeparator: {
         height: 3,
         backgroundColor: "#BBB",
     },
@@ -130,7 +168,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     tableColumnHeader: {
-        width: 80,
+        minWidth: 80,
         fontSize: 16,
         fontWeight: "bold",
     },

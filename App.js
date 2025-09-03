@@ -10,7 +10,6 @@ import haversine from "haversine-distance";
 
 // LTA DataMall
 import busStopsData from "./data/bus-stops.json";
-import fetchBusArrivals from "./services/fetchBusArrivals.js";
 
 // Assets
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -62,7 +61,9 @@ export default function App() {
             setUserRegion(region);
             setLocationPermission(true);
 
-            mapRef.current.animateToRegion(region, 1000);
+            if (mapRef.current) {
+                mapRef.current.animateToRegion(region, 1000);
+            }
         }
 
         getCurrentLocation();
@@ -70,7 +71,6 @@ export default function App() {
 
     // Display bus stop markers closest to user
     const [selectedStop, setSelectedStop] = useState(null);
-    const [arrivalInfo, setArrivalInfo] = useState([]);
 
     const getClosestMarkers = (stops, region, limit) => {
         return stops
@@ -90,42 +90,6 @@ export default function App() {
         [mapRegion]
     );
 
-    // Fetch bus arrival info for the selected bus stop
-    useEffect(() => {
-        if (!selectedStop) return;
-        fetchBusArrivals(selectedStop.BusStopCode).then(setArrivalInfo);
-    }, [selectedStop]);
-
-    // Get the next arriving buses
-    const getNextBuses = (arrivalInfo) => {
-        if (!selectedStop) return;
-
-        const nextBuses = arrivalInfo.flatMap((bus) =>
-            bus.NextBuses.filter(
-                (nextBus) => nextBus.EstimatedArrival !== "-"
-            ).map((nextBus) => {
-                let sortValue;
-
-                if (nextBus.EstimatedArrival === "Arr") {
-                    sortValue = 0;
-                }
-
-                return {
-                    ServiceNo: bus.ServiceNo,
-                    EstimatedArrival: nextBus.EstimatedArrival,
-                    Load: nextBus.Load,
-                    sortValue,
-                };
-            })
-        );
-
-        nextBuses.sort((a, b) => a.sortValue - b.sortValue);
-
-        return nextBuses.slice(0, 3);
-    };
-
-    const nextBuses = getNextBuses(arrivalInfo);
-
     return (
         <View style={styles.container}>
             {/* Recenter Button */}
@@ -142,7 +106,7 @@ export default function App() {
                 initialRegion={initialRegion}
                 onRegionChangeComplete={(newRegion) => {
                     setMapRegion(newRegion);
-                    setRefreshCounter(refreshCounter + 1);
+                    setRefreshCounter((prev) => prev + 1);
                 }}
                 showsCompass={false}
             >
@@ -188,13 +152,7 @@ export default function App() {
                 })}
             </MapView>
 
-            {selectedStop && (
-                <BottomSheet
-                    stop={selectedStop}
-                    nextBuses={nextBuses}
-                    arrivalInfo={arrivalInfo}
-                />
-            )}
+            {selectedStop && <BottomSheet stop={selectedStop} />}
 
             <StatusBar style="auto" />
         </View>

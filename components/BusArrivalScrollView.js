@@ -6,13 +6,10 @@ import {
     ScrollView,
 } from "react-native";
 
-import BusRouteModal from "./BusRouteModal.js";
-
 export default function BusArrivalScrollView({
     arrivalInfo,
     loadColours,
-    modalVisible,
-    setModalVisible,
+    getBusRoute,
 }) {
     return (
         <View style={styles.container}>
@@ -21,7 +18,7 @@ export default function BusArrivalScrollView({
                     <View style={styles.row} key={bus.ServiceNo}>
                         <TouchableOpacity
                             onPress={() => {
-                                setModalVisible(true);
+                                getBusRoute(bus.ServiceNo);
                             }}
                         >
                             <Text style={styles.serviceNo}>
@@ -45,11 +42,6 @@ export default function BusArrivalScrollView({
                     </View>
                 ))}
             </ScrollView>
-
-            <BusRouteModal
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-            />
         </View>
     );
 }
@@ -63,12 +55,12 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     serviceNo: {
-        width: 100,
+        minWidth: 80,
         fontSize: 24,
         fontWeight: "bold",
     },
     estimatedArrival: {
-        width: 40,
+        minWidth: 40,
         fontSize: 20,
         fontWeight: "bold",
         textAlign: "center",

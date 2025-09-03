@@ -1,10 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import NextBuses from "./NextBuses.js";
 import BusArrivalScrollView from "./BusArrivalScrollView.js";
+import BusRouteModal from "./BusRouteModal.js";
 
-export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
+import fetchBusArrivals from "../services/fetchBusArrivals.js";
+import busRoutesData from "../data/bus-routes.json";
+
+export default function BottomSheet({ stop }) {
     // Colours used to indicate bus load; used in conjunction with bus arrival times
     const loadColours = {
         SEA: "#28A745", // Green - Seats Available
@@ -12,8 +16,27 @@ export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
         LSD: "#DC3545", // Red - Limited Standing
     };
 
-    // Toggle bus route modal display
+    const [arrivalInfo, setArrivalInfo] = useState([]);
+
+    // Fetch bus arrival info for the selected bus stop
+    useEffect(() => {
+        if (!stop) return;
+        fetchBusArrivals(stop.BusStopCode).then(setArrivalInfo);
+    }, [stop]);
+
+    const [busRoute, setBusRoute] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+
+    const openBusRouteModal = (busStopCode, serviceNo) => {
+        const route = busRoutesData.find(
+            (route) =>
+                route.BusStopCode === busStopCode &&
+                route.ServiceNo === serviceNo
+        );
+
+        setBusRoute(route);
+        setModalVisible(true);
+    };
 
     return (
         <View style={styles.container}>
@@ -30,21 +53,34 @@ export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
                 <View style={styles.lineSeparator}></View>
 
                 <NextBuses
-                    nextBuses={nextBuses}
+                    arrivalInfo={arrivalInfo}
                     loadColours={loadColours}
-                    modalVisible={modalVisible}
-                    setModalVisible={setModalVisible}
+                    getBusRoute={(serviceNo) =>
+                        openBusRouteModal(stop.BusStopCode, serviceNo)
+                    }
                 />
 
                 <View style={styles.lineSeparator}></View>
 
-                <BusArrivalScrollView
-                    arrivalInfo={arrivalInfo}
-                    loadColours={loadColours}
+                {stop && (
+                    <BusArrivalScrollView
+                        arrivalInfo={arrivalInfo}
+                        loadColours={loadColours}
+                        getBusRoute={(serviceNo) =>
+                            openBusRouteModal(stop.BusStopCode, serviceNo)
+                        }
+                    />
+                )}
+            </View>
+
+            {busRoute && (
+                <BusRouteModal
                     modalVisible={modalVisible}
                     setModalVisible={setModalVisible}
+                    stop={stop}
+                    route={busRoute}
                 />
-            </View>
+            )}
         </View>
     );
 }
