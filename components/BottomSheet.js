@@ -1,13 +1,8 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    TouchableOpacity,
-    ScrollView,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
 
-import NextBuses from "./NextBuses";
-import BusArrivalScrollView from "./BusArrivalScrollView";
+import NextBuses from "./NextBuses.js";
+import BusArrivalScrollView from "./BusArrivalScrollView.js";
 
 export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
     // Colours used to indicate bus load; used in conjunction with bus arrival times
@@ -16,6 +11,9 @@ export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
         SDA: "#FFC107", // Amber - Standing Available
         LSD: "#DC3545", // Red - Limited Standing
     };
+
+    // Toggle bus route modal display
+    const [modalVisible, setModalVisible] = useState(false);
 
     return (
         <View style={styles.container}>
@@ -31,13 +29,20 @@ export default function BottomSheet({ stop, nextBuses, arrivalInfo }) {
 
                 <View style={styles.lineSeparator}></View>
 
-                <NextBuses nextBuses={nextBuses} loadColours={loadColours} />
+                <NextBuses
+                    nextBuses={nextBuses}
+                    loadColours={loadColours}
+                    modalVisible={modalVisible}
+                    setModalVisible={setModalVisible}
+                />
 
                 <View style={styles.lineSeparator}></View>
 
                 <BusArrivalScrollView
                     arrivalInfo={arrivalInfo}
                     loadColours={loadColours}
+                    modalVisible={modalVisible}
+                    setModalVisible={setModalVisible}
                 />
             </View>
         </View>

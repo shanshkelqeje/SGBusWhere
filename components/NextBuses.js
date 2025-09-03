@@ -1,9 +1,16 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-export default function NextBuses({ nextBuses, loadColours }) {
+import BusRouteModal from "./BusRouteModal.js";
+
+export default function NextBuses({
+    nextBuses,
+    loadColours,
+    modalVisible,
+    setModalVisible,
+}) {
     return (
         <View style={styles.nextBusesContainer}>
             {nextBuses.map((nextBus, index) => (
@@ -15,9 +22,15 @@ export default function NextBuses({ nextBuses, loadColours }) {
                                 size={20}
                                 color="#000"
                             />
-                            <Text style={styles.nextBusServiceNo}>
-                                {nextBus.ServiceNo}
-                            </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setModalVisible(true);
+                                }}
+                            >
+                                <Text style={styles.nextBusServiceNo}>
+                                    {nextBus.ServiceNo}
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                         <Text
                             style={[
@@ -37,6 +50,11 @@ export default function NextBuses({ nextBuses, loadColours }) {
                     )}
                 </React.Fragment>
             ))}
+
+            <BusRouteModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+            />
         </View>
     );
 }
