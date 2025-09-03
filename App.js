@@ -68,7 +68,7 @@ export default function App() {
         getCurrentLocation();
     }, []);
 
-    // Logic for displaying bus stop markers - only display a number of markers closest to user
+    // Display bus stop markers closest to user
     const [selectedStop, setSelectedStop] = useState(null);
     const [arrivalInfo, setArrivalInfo] = useState([]);
 
@@ -85,18 +85,46 @@ export default function App() {
             .slice(0, limit);
     };
 
-    // Logic to fetch bus arrival info for the selected bus stop
+    const visibleMarkers = useMemo(
+        () => getClosestMarkers(busStopsData, mapRegion, 20),
+        [mapRegion]
+    );
+
+    // Fetch bus arrival info for the selected bus stop
     useEffect(() => {
         if (!selectedStop) return;
         fetchBusArrivals(selectedStop.BusStopCode).then(setArrivalInfo);
     }, [selectedStop]);
 
-    console.log(arrivalInfo);
+    // Get the next arriving buses
+    const getNextBuses = (arrivalInfo) => {
+        if (!selectedStop) return;
 
-    const visibleMarkers = useMemo(
-        () => getClosestMarkers(busStopsData, mapRegion, 20),
-        [mapRegion]
-    );
+        const nextBuses = arrivalInfo.flatMap((bus) =>
+            bus.NextBuses.filter(
+                (nextBus) => nextBus.EstimatedArrival !== "-"
+            ).map((nextBus) => {
+                let sortValue;
+
+                if (nextBus.EstimatedArrival === "Arr") {
+                    sortValue = 0;
+                }
+
+                return {
+                    ServiceNo: bus.ServiceNo,
+                    EstimatedArrival: nextBus.EstimatedArrival,
+                    Load: nextBus.Load,
+                    sortValue,
+                };
+            })
+        );
+
+        nextBuses.sort((a, b) => a.sortValue - b.sortValue);
+
+        return nextBuses.slice(0, 3);
+    };
+
+    const nextBuses = getNextBuses(arrivalInfo);
 
     return (
         <View style={styles.container}>
@@ -116,6 +144,7 @@ export default function App() {
                     setMapRegion(newRegion);
                     setRefreshCounter(refreshCounter + 1);
                 }}
+                showsCompass={false}
             >
                 {/* User Marker */}
                 {locationPermission && (
@@ -148,20 +177,24 @@ export default function App() {
                             onPress={() => {
                                 setSelectedStop(stop);
                             }}
-                            title={stop.Description}
-                            description={stop.RoadName}
                         >
                             <MaterialIcons
                                 name="directions-bus"
                                 size={24}
-                                color={isSelected ? "#EE2536" : "#555555"}
+                                color={isSelected ? "#EE2536" : "#555"}
                             />
                         </Marker>
                     );
                 })}
             </MapView>
 
-            {selectedStop && <BottomSheet></BottomSheet>}
+            {selectedStop && (
+                <BottomSheet
+                    stop={selectedStop}
+                    nextBuses={nextBuses}
+                    arrivalInfo={arrivalInfo}
+                />
+            )}
 
             <StatusBar style="auto" />
         </View>
@@ -171,7 +204,7 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#555555",
+        backgroundColor: "#555",
         alignItems: "center",
         justifyContent: "center",
     },
@@ -183,7 +216,7 @@ const styles = StyleSheet.create({
         zIndex: 1,
         position: "absolute",
         right: "5%",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#FFF",
         alignSelf: "flex-end",
         padding: 16,
         borderRadius: 50,

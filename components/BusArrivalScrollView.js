@@ -6,45 +6,31 @@ import {
     ScrollView,
 } from "react-native";
 
-export default function BusArrivalScrollView({}) {
+export default function BusArrivalScrollView({ arrivalInfo, loadColours }) {
     return (
         <ScrollView style={styles.container}>
-            <View style={styles.row}>
-                <Text style={styles.serviceNo}>89</Text>
-                <Text style={styles.estimatedArrival}>Arr</Text>
-                <Text style={styles.estimatedArrival}>3</Text>
-                <Text style={styles.estimatedArrival}>11</Text>
-            </View>
-            <View style={styles.row}>
-                <Text style={styles.serviceNo}>81</Text>
-                <Text style={styles.estimatedArrival}>1</Text>
-                <Text style={styles.estimatedArrival}>3</Text>
-                <Text style={styles.estimatedArrival}>5</Text>
-            </View>
-            <View style={styles.row}>
-                <Text style={styles.serviceNo}>109</Text>
-                <Text style={styles.estimatedArrival}>7</Text>
-                <Text style={styles.estimatedArrival}>11</Text>
-                <Text style={styles.estimatedArrival}>-</Text>
-            </View>
-            <View style={styles.row}>
-                <Text style={styles.serviceNo}>291</Text>
-                <Text style={styles.estimatedArrival}>3</Text>
-                <Text style={styles.estimatedArrival}>5</Text>
-                <Text style={styles.estimatedArrival}>5</Text>
-            </View>
-            <View style={styles.row}>
-                <Text style={styles.serviceNo}>109M</Text>
-                <Text style={styles.estimatedArrival}>2</Text>
-                <Text style={styles.estimatedArrival}>14</Text>
-                <Text style={styles.estimatedArrival}>21</Text>
-            </View>
+            {arrivalInfo.map((bus) => (
+                <View style={styles.row} key={bus.ServiceNo}>
+                    <Text style={styles.serviceNo}>{bus.ServiceNo}</Text>
+                    {bus.NextBuses.map((nextBus, index) => (
+                        <Text
+                            style={[
+                                styles.estimatedArrival,
+                                { color: loadColours[nextBus.Load] || "#555" },
+                            ]}
+                            key={index}
+                        >
+                            {nextBus.EstimatedArrival}
+                        </Text>
+                    ))}
+                </View>
+            ))}
         </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { marginBottom: 16 },
+    container: { maxHeight: "45%" },
     row: {
         flexDirection: "row",
         alignItems: "center",
