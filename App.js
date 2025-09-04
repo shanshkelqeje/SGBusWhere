@@ -7,7 +7,6 @@ import * as Location from "expo-location";
 // Third-party libraries
 import MapView, { Marker } from "react-native-maps";
 import haversine from "haversine-distance";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // LTA DataMall
 import busStopsData from "./data/bus-stops.json";
@@ -18,6 +17,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 // Components
 import BottomSheet from "./components/BottomSheet.js";
 import TrainMapModal from "./components/TrainMapModal.js";
+import SearchBar from "./components/SearchBar.js";
 
 export default function App() {
     /** Constants */
@@ -96,103 +96,99 @@ export default function App() {
     const [trainModalVisible, setTrainModalVisible] = useState(false);
 
     return (
-        <GestureHandlerRootView>
-            <View style={styles.container}>
-                {/* Train Map Button */}
-                <TouchableOpacity
-                    style={styles.trainMapButton}
-                    onPress={() => setTrainModalVisible(true)}
-                >
-                    <MaterialIcons name="train" size={28} color="#EE2536" />
-                </TouchableOpacity>
+        <View style={styles.container}>
+            {/* Search Bar */}
+            <SearchBar />
 
-                <TrainMapModal
-                    visible={trainModalVisible}
-                    setVisibility={setTrainModalVisible}
-                />
+            {/* Train Map Button */}
+            <TouchableOpacity
+                style={styles.trainMapButton}
+                onPress={() => setTrainModalVisible(true)}
+            >
+                <MaterialIcons name="train" size={28} color="#EE2536" />
+            </TouchableOpacity>
 
-                {/* Recenter Button */}
-                <TouchableOpacity
-                    style={styles.recenterButton}
-                    onPress={recenterMap}
-                >
-                    <MaterialIcons
-                        name="my-location"
-                        size={28}
-                        color="#EE2536"
-                    />
-                </TouchableOpacity>
+            <TrainMapModal
+                visible={trainModalVisible}
+                setVisibility={setTrainModalVisible}
+            />
 
-                <MapView
-                    ref={mapRef}
-                    style={styles.map}
-                    initialRegion={initialRegion}
-                    onRegionChangeComplete={(newRegion) => {
-                        setMapRegion(newRegion);
-                        setRefreshCounter((prev) => prev + 1);
-                    }}
-                    showsCompass={false}
-                >
-                    {/* User Marker */}
-                    {locationPermission && (
+            {/* Recenter Button */}
+            <TouchableOpacity
+                style={styles.recenterButton}
+                onPress={recenterMap}
+            >
+                <MaterialIcons name="my-location" size={28} color="#EE2536" />
+            </TouchableOpacity>
+
+            <MapView
+                ref={mapRef}
+                style={styles.map}
+                initialRegion={initialRegion}
+                onRegionChangeComplete={(newRegion) => {
+                    setMapRegion(newRegion);
+                    setRefreshCounter((prev) => prev + 1);
+                }}
+                showsCompass={false}
+            >
+                {/* User Marker */}
+                {locationPermission && (
+                    <Marker
+                        coordinate={{
+                            latitude: userRegion.latitude,
+                            longitude: userRegion.longitude,
+                        }}
+                        title="You"
+                    >
+                        <MaterialIcons
+                            name="location-pin"
+                            size={36}
+                            color="#EE2536"
+                        />
+                    </Marker>
+                )}
+
+                {/* Bus Stop Markers */}
+                {visibleMarkers.map((stop) => {
+                    const isSelected =
+                        selectedStop?.BusStopCode === stop.BusStopCode;
+                    return (
                         <Marker
+                            key={`${stop.BusStopCode}-${refreshCounter}`}
                             coordinate={{
-                                latitude: userRegion.latitude,
-                                longitude: userRegion.longitude,
+                                latitude: stop.Latitude,
+                                longitude: stop.Longitude,
                             }}
-                            title="You"
+                            onPress={() => {
+                                setSelectedStop(stop);
+                            }}
                         >
                             <MaterialIcons
-                                name="location-pin"
-                                size={36}
-                                color="#EE2536"
+                                name="directions-bus"
+                                size={24}
+                                color={isSelected ? "#EE2536" : "#555"}
                             />
                         </Marker>
-                    )}
+                    );
+                })}
+            </MapView>
 
-                    {/* Bus Stop Markers */}
-                    {visibleMarkers.map((stop) => {
-                        const isSelected =
-                            selectedStop?.BusStopCode === stop.BusStopCode;
-                        return (
-                            <Marker
-                                key={`${stop.BusStopCode}-${refreshCounter}`}
-                                coordinate={{
-                                    latitude: stop.Latitude,
-                                    longitude: stop.Longitude,
-                                }}
-                                onPress={() => {
-                                    setSelectedStop(stop);
-                                }}
-                            >
-                                <MaterialIcons
-                                    name="directions-bus"
-                                    size={24}
-                                    color={isSelected ? "#EE2536" : "#555"}
-                                />
-                            </Marker>
-                        );
-                    })}
-                </MapView>
+            {selectedStop && <BottomSheet stop={selectedStop} />}
 
-                {selectedStop && <BottomSheet stop={selectedStop} />}
-
-                <StatusBar style="auto" />
-            </View>
-        </GestureHandlerRootView>
+            <StatusBar style="auto" />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#555",
         alignItems: "center",
         justifyContent: "center",
     },
     map: {
-        width: "100%",
-        height: "100%",
+        // width: "100%",
+        // height: "100%",
     },
     trainMapButton: {
         zIndex: 1,
