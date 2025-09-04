@@ -11,25 +11,9 @@ import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-export default function SearchBar({}) {
+export default function SearchBar({ services }) {
     const [query, setQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-
-    const DATA = [
-        { ServiceNo: "291" },
-        { ServiceNo: "81" },
-        { ServiceNo: "89" },
-        { ServiceNo: "1" },
-        { ServiceNo: "2" },
-        { ServiceNo: "3" },
-        { ServiceNo: "4" },
-        { ServiceNo: "5" },
-        { ServiceNo: "6" },
-        { ServiceNo: "7" },
-        { ServiceNo: "8" },
-        { ServiceNo: "9" },
-        { ServiceNo: "10" },
-    ];
 
     const handleSearch = (input) => {
         setQuery(input);
@@ -39,7 +23,9 @@ export default function SearchBar({}) {
             return;
         }
 
-        const results = DATA.filter((bus) => bus.ServiceNo.includes(input));
+        const results = services.filter((serviceNo) =>
+            serviceNo.toLowerCase().startsWith(input.toLowerCase())
+        );
 
         setSearchResults(results);
     };
@@ -78,7 +64,7 @@ export default function SearchBar({}) {
                 <FlatList
                     style={styles.results}
                     data={searchResults}
-                    keyExtractor={(item) => item.ServiceNo}
+                    keyExtractor={(item) => item}
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.item}
@@ -96,9 +82,7 @@ export default function SearchBar({}) {
                                 size={24}
                                 color="#555"
                             />
-                            <Text style={styles.resultText}>
-                                {item.ServiceNo}
-                            </Text>
+                            <Text style={styles.resultText}>{item}</Text>
                         </TouchableOpacity>
                     )}
                     contentContainerStyle={styles.resultsContainer}
